@@ -1,0 +1,41 @@
+#program 1
+# save the file as recon.py
+import subprocess as sp
+import sys
+
+def clean(url):
+    # Removes http/https and paths to extract the raw domain
+    return url.replace('https://', '').replace('http://', '').split('/')[0]
+
+def recon(domain):
+    print("\n[*] Target: " + domain + "\n")
+
+    # WHOIS Lookup
+    print("[+] Running WHOIS...")
+    sp.run(['whois', domain])
+
+    # Google Dorks Definition
+    dorks = [
+        "site:" + domain + " filetype:pdf",
+        "site:" + domain + " inurl:admin",
+        "site:" + domain + " intitle:index.of",
+        "intext:@" + domain
+    ]
+
+    print("\n[+] Opening Google Dorks...")
+
+    # Open each dork in the default web browser
+    for d in dorks:
+        url = "https://www.google.com/search?q=" + d.replace(' ', '+')
+        sp.run(['xdg-open', url])
+        print(" - " + d)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 recon.py example.com")
+        sys.exit(1)
+
+    recon(clean(sys.argv[1]))
+
+#to run the program
+# python3 recon.py example.com
